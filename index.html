@@ -1,0 +1,500 @@
+<html><head><base href=".">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Incidentes</title>
+
+<style>
+:root {
+    --primary: #2c3e50;
+    --secondary: #34495e;
+    --success: #27ae60;
+    --danger: #c0392b;
+    --warning: #f39c12;
+    --light: #ecf0f1;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background-color: var(--light);
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--secondary);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s opacity;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.stat-card .number {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--success);
+}
+
+#chart {
+    margin-top: 20px;
+    height: 300px;
+}
+
+.resolution-chart {
+    margin-top: 20px;
+    height: 300px;
+}
+
+.incidents-list {
+    margin-top: 20px;
+}
+
+.incident-item {
+    padding: 10px;
+    border-left: 4px solid var(--primary);
+    margin-bottom: 10px;
+    background: white;
+    border-radius: 0 4px 4px 0;
+    position: relative;
+}
+
+.baixa { border-left-color: var(--success); }
+.media { border-left-color: var(--warning); }
+.alta { border-left-color: var(--danger); }
+
+.photo-preview {
+    max-width: 200px;
+    max-height: 200px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.photo-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.status-pendente {
+    background-color: #f39c12;
+    color: white;
+}
+
+.status-analise {
+    background-color: #3498db;
+    color: white;
+}
+
+.status-resolvido {
+    background-color: #27ae60;
+    color: white;
+}
+
+.status-actions {
+    margin-top: 10px;
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="images/logotipo-seguranca-do-trabalho-png.png" alt="Circular green logo featuring a large green cross with the words 'SEGURANÇA DO TRABALHO' inscribed around it." class="logo"> 
+        <h1>Registro de Incidentes</h1>
+    </div>
+    
+    <div class="card">
+        <h2>Novo Incidente</h2>
+        <form id="incidentForm">
+            <div class="form-group">
+                <label>Nome do Colaborador</label>
+                <input type="text" id="collaboratorName" required>
+            </div>
+            <div class="form-group">
+                <label>Data do Incidente</label>
+                <input type="date" id="date" required>
+            </div>
+
+            <div class="form-group">
+                <label>Horário do Incidente</label>
+                <input type="time" id="time" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Local</label>
+                <input type="text" id="location" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="description" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Gravidade</label>
+                <select id="severity" required>
+                    <option value="baixa">Baixa</option>
+                    <option value="media">Média</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select id="status" required>
+                    <option value="pendente">Pendente</option>
+                    <option value="analise">Em Análise</option>
+                    <option value="resolvido">Resolvido</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fotos do Incidente</label>
+                <input type="file" id="photos" accept="image/*" multiple>
+                <div id="photoPreview" class="photo-container"></div>
+            </div>
+            
+            <button type="submit">Registrar Incidente</button>
+        </form>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Total de Incidentes</h3>
+            <div class="number" id="totalIncidents">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Gravidade Alta</h3>
+            <div class="number" id="highSeverity">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Gravidade Média</h3>
+            <div class="number" id="mediumSeverity">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Gravidade Baixa</h3>
+            <div class="number" id="lowSeverity">0</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <canvas id="chart"></canvas>
+    </div>
+
+    <div class="incidents-list" id="incidentsList">
+        <!-- Incidents will be listed here -->
+    </div>
+
+    <div class="card">
+        <canvas id="resolutionChart" class="resolution-chart"></canvas>
+    </div>
+</div>
+
+<script>
+let incidents = JSON.parse(localStorage.getItem('incidents')) || [];
+
+// Add status to existing incidents if they don't have it
+incidents = incidents.map(incident => ({
+    ...incident,
+    status: incident.status || 'pendente'
+}));
+
+let chart = null;
+let resolutionChart = null;
+
+function updateStats() {
+    const stats = {
+        total: incidents.length,
+        high: incidents.filter(i => i.severity === 'alta').length,
+        medium: incidents.filter(i => i.severity === 'media').length,
+        low: incidents.filter(i => i.severity === 'baixa').length,
+        pendente: incidents.filter(i => i.status === 'pendente').length,
+        analise: incidents.filter(i => i.status === 'analise').length,
+        resolvido: incidents.filter(i => i.status === 'resolvido').length
+    };
+
+    document.getElementById('totalIncidents').textContent = stats.total;
+    document.getElementById('highSeverity').textContent = stats.high;
+    document.getElementById('mediumSeverity').textContent = stats.medium;
+    document.getElementById('lowSeverity').textContent = stats.low;
+
+    updateChart(stats);
+    updateResolutionChart(stats);
+    updateList();
+}
+
+function updateChart(stats) {
+    const ctx = document.getElementById('chart').getContext('2d');
+    
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Baixa', 'Média', 'Alta'],
+            datasets: [{
+                label: 'Incidentes por Gravidade',
+                data: [stats.low, stats.medium, stats.high],
+                backgroundColor: [
+                    '#27ae60',
+                    '#f39c12',
+                    '#c0392b'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateResolutionChart(stats) {
+    const ctx = document.getElementById('resolutionChart').getContext('2d');
+    
+    if (resolutionChart) {
+        resolutionChart.destroy();
+    }
+
+    // Calculate percentages
+    const total = stats.pendente + stats.analise + stats.resolvido;
+    const pendentePct = total > 0 ? ((stats.pendente / total) * 100).toFixed(1) : 0;
+    const analisePct = total > 0 ? ((stats.analise / total) * 100).toFixed(1) : 0;
+    const resolvidoPct = total > 0 ? ((stats.resolvido / total) * 100).toFixed(1) : 0;
+
+    resolutionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                `Pendente (${pendentePct}%)`, 
+                `Em Análise (${analisePct}%)`, 
+                `Resolvido (${resolvidoPct}%)`
+            ],
+            datasets: [{
+                data: [stats.pendente, stats.analise, stats.resolvido],
+                backgroundColor: [
+                    '#f39c12',
+                    '#3498db',
+                    '#27ae60'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Status de Resolução dos Incidentes (%)'
+                },
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${percentage}% (${value} incidentes)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateStatus(index, newStatus) {
+    incidents[index].status = newStatus;
+    localStorage.setItem('incidents', JSON.stringify(incidents));
+    updateList();
+}
+
+function updateList() {
+    const list = document.getElementById('incidentsList');
+    list.innerHTML = '';
+
+    incidents.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((incident, index) => {
+        const item = document.createElement('div');
+        item.className = `incident-item ${incident.severity}`;
+        let photoHtml = '';
+        if (incident.photos && incident.photos.length > 0) {
+            photoHtml = '<div class="photo-container">';
+            incident.photos.forEach(photo => {
+                photoHtml += `<img src="${photo}" alt="Foto do incidente" class="photo-preview">`;
+            });
+            photoHtml += '</div>';
+        }
+        
+        item.innerHTML = `
+            <div class="status-badge status-${incident.status}">
+                ${incident.status.toUpperCase()}
+            </div>
+            <strong>Nome do Colaborador:</strong> ${incident.userName}<br>
+            <strong>Data:</strong> ${new Date(incident.date).toLocaleDateString()} ${incident.time} | 
+            <strong>Local:</strong> ${incident.location} | 
+            <strong>Gravidade:</strong> ${incident.severity.toUpperCase()}<br>
+            <strong>Descrição:</strong> ${incident.description}<br>
+            ${photoHtml}
+            <div class="status-actions">
+                <button onclick="updateStatus(${index}, 'pendente')" ${incident.status === 'pendente' ? 'disabled' : ''}>Pendente</button>
+                <button onclick="updateStatus(${index}, 'analise')" ${incident.status === 'analise' ? 'disabled' : ''}>Em Análise</button>
+                <button onclick="updateStatus(${index}, 'resolvido')" ${incident.status === 'resolvido' ? 'disabled' : ''}>Resolvido</button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+document.getElementById('photos').addEventListener('change', function(e) {
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    
+    Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.className = 'photo-preview';
+            preview.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+    });
+});
+
+document.getElementById('incidentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const photos = [];
+    const preview = document.getElementById('photoPreview');
+    const images = preview.getElementsByTagName('img');
+    Array.from(images).forEach(img => {
+        photos.push(img.src);
+    });
+
+    const newIncident = {
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        severity: document.getElementById('severity').value,
+        status: document.getElementById('status').value,
+        userName: document.getElementById('collaboratorName').value,
+        photos: photos
+    };
+
+    incidents.push(newIncident);
+    localStorage.setItem('incidents', JSON.stringify(incidents));
+    
+    alert("Obrigado por nos alertar. Estaremos avaliando o incidente o mais breve possível!");
+    
+    updateStats();
+    this.reset();
+    document.getElementById('photoPreview').innerHTML = '';
+});
+
+// Initial load
+updateStats();
+</script>
+
+</body></html>
